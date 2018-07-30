@@ -1,0 +1,35 @@
+# BEGIN WP Hide & Security Enhancer
+<IfModule mod_rewrite.c> 
+RewriteEngine On 
+RewriteBase /services/ 
+#WriteCheckString:1527579122_29424
+RewriteRule .* - [E=HTTP_MOD_REWRITE:On]
+
+RewriteRule ^admin-login(.*) /services/wp-login.php$1 [L,QSA]
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteRule ^wp-login.php /index.php?wph-throw-404 [L]
+
+RewriteCond %{REQUEST_URI} /services/adminpanel$
+RewriteRule ^(.*)$ /services/adminpanel/ [R=301,L]
+RewriteRule ^adminpanel(.*) /services/wp-admin$1 [L,QSA]
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteRule ^wp-admin(.+) /services/index.php?wph-throw-404 [L]
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteRule ^dashboard(.+) /services/index.php?wph-throw-404 [L]
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteRule ^admin(.+) /services/index.php?wph-throw-404 [L]
+</IfModule> 
+
+# END WP Hide & Security Enhancer
+
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /services/
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /services/index.php [L]
+</IfModule>
+
+# END WordPress
