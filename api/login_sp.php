@@ -10,14 +10,15 @@ try {
 		
 		if(isset($_POST['mobile_no']) && isset($_POST['password']) && isset($_POST['device_id']) && isset($_POST['device_type']))
 		{
+			
 			$username = $_POST['mobile_no'];
 			$password = $_POST['password'];
 			$device_id = $_POST['device_id'];
 			$device_type = $_POST['device_type'];
 			
 			$username = sanitize_user($username);
-			// if($username);
-			$username = "91".$username;
+			$username = str_replace("+","",$username);
+			$username = $username;
 			$password = trim($password);
 			
 			$user = get_user_by( 'login', $username );
