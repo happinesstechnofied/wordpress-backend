@@ -303,6 +303,104 @@ try {
 		break;
 		case "social_login":
 		
+			
+		
+		
+			$username = $_POST['mobile_no'];
+			$password = 'user@123';
+			$device_id = $_POST['device_id'];
+			$device_type = $_POST['device_type'];
+
+			
+
+			$user_email = $_POST['email'];
+			$first_name = $_POST['first_name'];
+			$last_name = $_POST['last_name'];
+			$device_id = $_POST['deviceid'];
+			$device_type = $_POST['devicetype'];
+
+			if ( email_exists($user_email) == false ) {
+
+				$user_id = wp_create_user( $user_email, $password, $user_email );
+				
+				
+									$userdata =	array(
+										'ID'         => $user_id,
+										'first_name' => $first_name,
+										'last_name'  => $last_name,
+										//'phone'      => $mobile_number,
+										//'user_url'    =>  $website,
+										'role' => 'regular'
+										//'url '  => $website
+										//'nickname' => $nickname
+										//'display_name' => $display_name
+									);
+				
+									wp_update_user($userdata);
+				
+				
+									add_user_meta( $user_id, 'billing_first_name', $first_name);
+									add_user_meta( $user_id, 'billing_last_name', $last_name);
+									add_user_meta( $user_id, 'billing_email', $user_email);
+
+				$status = 1;
+				$data['status'] = ($status>1)? "fail" : "success";
+				$data['id'] = $user_id;
+				$data['user_email'] = $user_email;
+				$data['first_name'] = $first_name;
+				$data['last_name'] = $last_name;
+
+			}else {
+
+				$status = 1;
+				$data['status'] = ($status>1)? "fail" : "success";
+
+				$user = get_user_by( 'email', $user_email );
+				$data['id'] = $user->ID;
+				$data['user_email'] = $user->user_email;
+				$data['first_name'] = get_user_meta($user->ID,'billing_first_name',true);
+				$data['last_name'] = get_user_meta($user->ID,'billing_last_name',true);
+
+			}
+
+
+			global $wpdb; 
+			
+			$results = $wpdb->get_results("SELECT * from ".$wpdb->prefix."reguser where device_id='".$device_id."' and device_type=".$device_type);
+				
+			//echo "SELECT * from ".$wpdb->prefix."reguser where device_id='".$device_id."' and device_type=".$device_type;
+				
+			if( count($results) > 0){
+				$wpdb->update( 
+					$wpdb->prefix.'reguser',
+					array( 
+						'user_id' => $user_id
+					), 
+					array( 'device_id' => $device_id ), 
+					array( 
+						'%d'
+					), 
+					array( '%s' ) 
+				);
+			}else{
+				$wpdb->insert( 
+					$wpdb->prefix.'reguser',
+					array( 
+						'user_id' => $user_id,
+						'device_id' => $device_id,
+						'device_type' => $device_type,
+					), 
+					array( 
+						'%d',
+						'%s',
+						'%s'
+					)
+				);
+			}
+			
+
+			echo json_encode($data);
+		
 		default:
 		{
 			$data['data'] = 'No Service Found';

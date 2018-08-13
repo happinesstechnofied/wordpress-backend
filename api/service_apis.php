@@ -233,6 +233,49 @@ try {
                 }
             }
             $productdata['tags'] = $tags_data;
+			
+			
+			$productdata['review_rattings'] = array();
+			
+			$ratting_counter = 0;
+			$total_ratting = 0;
+			if( have_rows('user_reviews_and_ratings',$post_id) ):
+				while( have_rows('user_reviews_and_ratings',$post_id) ): the_row(); 
+				
+					$status = get_sub_field('status');
+				
+					if($status){
+						$ratting_review = array();
+						$review = get_sub_field('review');
+						$rattings = get_sub_field('rattings');
+						$date = get_sub_field('date');
+						$review_by_user = get_sub_field('review_by_user');
+					
+						
+						$ratting_review['user_id'] = $review_by_user['ID'];
+						$ratting_review['user_name'] = $review_by_user['display_name'];
+						$ratting_review['user_avatar'] = get_cupp_meta( $review_by_user['ID'], 'thumbnail' );
+						$ratting_review['review'] = $review;
+						$ratting_review['rattings'] = $rattings;
+						$ratting_counter++;
+						$total_ratting += $rattings;
+						$ratting_review['date'] = $date;
+						$ratting_review['status'] = $status;
+						
+						$productdata['review_rattings'][] = $ratting_review;
+					}
+				endwhile;
+			endif;
+			
+			if($ratting_counter == 0 ){
+				$productdata['total_reviews'] = $ratting_counter;
+				$productdata['total_rattings'] = number_format((float)(0), 1, '.', '');
+			}else{
+				$productdata['total_reviews'] = $ratting_counter;
+				$productdata['total_rattings'] = number_format((float)($total_ratting / $ratting_counter), 1, '.', '');
+			}
+			
+			
 
             $data['services'][] = $productdata;
             // $data['service_id'] = $post_id;
@@ -838,8 +881,30 @@ try {
             echo json_encode($data);
             die;
         break;
-        case "social_login":
+        case "submit_review":
+			$post_id = $_REQUEST['service_id'];
+			$user_id = $_REQUEST['user_id'];
+            $review = $_REQUEST['review'];
+            $rattings = $_REQUEST['rattings'];
+			
+				$row = array(
+					'field_5b4f3b5bcf0ed'	=> $review,
+					'field_5b4f3c0ecf0ee'	=> $rattings,
+					'field_5b4f4011cf0ef'	=> date("Y/m/d H:i:s"),
+					'field_5b4f4080cf0f0'	=> $user_id,
+					'field_5b4f40b4cf0f1'	=> true,
+				);
+				add_row( 'field_5b4f3aa8cf0eb', $row, $post_id );
+			
+			
+			$status = 1;
+            $data['status'] = ($status > 1) ? 'failed' : 'success';
+            $data['message'] = "Review submitted successfully";
+            $data['user_data'] = $data1;
+            echo json_encode($data);
+            die;
 
+		break;
         default:
         {
             $data['data'] = 'No Service Found';
