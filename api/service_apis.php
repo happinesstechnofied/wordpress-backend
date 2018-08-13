@@ -276,6 +276,53 @@ try {
 			}
 			
 			
+			// GEt service question ans data
+			$que_answer_data = array();
+						
+				//get question ans history for user
+				$args = array(
+					'post_id' => $post_id, // use user_id
+					'parent'  => 0,
+					'orderby' => 'comment_date',
+					'order' => 'ASC',
+				);
+				
+				$questions_data = array();
+				
+				$questions = get_comments($args);
+				
+				$data_questions = array();
+				foreach($questions as $question){
+					$temp_question_data = array();
+					$temp_question_data['question_id'] = $question->comment_ID;
+					$temp_question_data['service_id'] = $question->comment_post_ID;
+					$temp_question_data['question'] = $question->comment_content;
+					$temp_question_data['date'] = $question->comment_date;
+					
+					$args = array(
+						'parent'  => $question->comment_ID,
+						'orderby' => 'comment_date',
+						'order' => 'ASC',
+					);
+					
+					$answers = get_comments($args);
+					
+					foreach($answers as $answer){
+						$temp_answer_data = array();
+						$temp_answer_data['answer_id'] = $answer->comment_ID;
+						$temp_answer_data['service_id'] = $answer->comment_post_ID;
+						$temp_answer_data['answer'] = $answer->comment_content;
+						$temp_answer_data['date'] = $answer->comment_date;
+						
+						$temp_question_data['answers'][] = $temp_answer_data;
+					}
+					
+					
+					$data_questions[] = $temp_question_data;
+					
+				}
+						
+				$productdata['que_ans_history'] = $data_questions;
 
             $data['services'][] = $productdata;
             // $data['service_id'] = $post_id;
